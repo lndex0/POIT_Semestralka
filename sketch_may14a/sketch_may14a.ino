@@ -1,4 +1,3 @@
-
 float value;
 int i = 0;
 float voltage;
