@@ -45,15 +45,20 @@ def background_thread(args):
             ser.write(bytes(str(x), 'utf-8'))
             read_ser = ser.readline()
             read_ser = read_ser.decode('ascii').split(',')
+            
             time.sleep(0.05)
+            
             read_ser_sent = read_ser[0]
             read_ser_sent = read_ser_sent.strip("\r\n")
             read_ser_sent = float(read_ser_sent)
+            
             dataDict = {
             "x": dataCounter,
-            "y": read_ser_sent}
+            "y": read_ser_sent,
+            "voltage": float(voltage)}
             dataList.append(dataDict)
             dataCounter += 1
+            
             count += 1
             socketio.emit('my_response',
                           {'data': read_ser_sent, 'count': count},
@@ -62,7 +67,9 @@ def background_thread(args):
             if len(dataList)>0:
                 print(str(dataList))
                 fuj = str(dataList).replace("'", "\"")
+                
                 write2file(fuj)
+                
                 cursor = db.cursor()
                 cursor.execute("SELECT MAX(id) FROM voltage")
                 maxid = cursor.fetchone()
