@@ -4,40 +4,118 @@
 		<title>Semestralne zadanie</title>
 		<script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
 	    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.min.js"></script>
+      <script src="static/libs/plotly-latest.min.js"></script>
+       <script src="static/libs/gauge.min.js"></script>
 	    <script type="text/javascript" charset="utf-8">
 		  $(document).ready(function() {
-			namespace = '/test';
-			var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+        
+        var gauge = new RadialGauge({
+          renderTo: 'canvasID',
+          width: 300,
+          height: 300,
+          units: "Volts",
+          minValue: 0,
+          maxValue: 5,
+          majorTicks: [
+            "0",
+            "0.5",
+            "1",
+            "1.5",
+            "2",
+            "2.5",
+            "3",
+            "3.5",
+            "4",
+            "4.5",
+            "5",
+          ],
+          minorTicks: 2,
+          strokeTicks: true,
+          highlights: [
+              {
+                  "from": 4.5,
+                  "to": 5,
+                  "color": "rgba(200, 50, 50, .75)"
+              }
+              
+          ],
+          
+          colorPlate: "#fff",
+          borderShadowWidth: 0,
+          borders: false,
+          
+          needleType: "arrow",
+          needleWidth: 3,
+          needleCircleSize: 5,
+          needleCircleOuter: true,
+          needleCircleInner: false,
+          needleShadow: true,
+          
+          valueInt: 1,
+          animationDuration: 1000,
+          animationRule: "linear"
+        });
+        gauge.draw();
+        gauge.value = "0";
+        
+        var x = new Array();
+        var y = new Array();
+        var trace;
+        var layout;
+        
+        namespace = '/test';
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
 
-			socket.on('connect', function() {
-			socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
+        socket.on('connect', function() {
+        socket.emit('my_event', {data: 'I\'m connected!', value: 1}); });
 
-			socket.on('my_response', function(msg) {
-			console.log(msg.data);
-			$('#log').append('Received #'+msg.count+": "+msg.data+'<br>').html(); });
+        socket.on('my_response', function(msg) {
+        console.log(msg.data);
+        $('#log').append('Received #'+msg.count+": "+msg.data+'<br>').html();
+        gauge.value = msg.data; 
+        x.push(parseFloat(msg.count));
+        y.push(parseFloat(msg.data));
+        trace = {
+            x: x,
+            y: y,
+        };
+        layout = {
+          title: 'Data',
+          xaxis: {
+              title: 'x',
+          },
+          yaxis: {
+              title: 'y',
+          }
+          };
+          console.log(trace);
+        var traces = new Array();
+        traces.push(trace);
+        Plotly.newPlot($('#plotdiv')[0], traces, layout);
+        });
 
-			$('form#emit').submit(function(event) {
-				socket.emit('my_event', {value: $('#emit_value').val()});
-				return false; });
-        
-			$('#buttonVal').click(function(event) {
-				console.log($('#buttonVal').val());
-				socket.emit('click_event', {value: $('#buttonVal').val()});
-				return false; });
-        
-			$('form#disconnect').submit(function(event) {
-				socket.emit('disconnect_request');
-				return false; }); 
-        
-			$('#start').click(function(event) {
-				console.log($('#start').val());
-				socket.emit('click_start', {value: $('#start').val()});
-				return false; });
-        
-			$('#stop').click(function(event) {
-				console.log($('#stop').val());
-				socket.emit('click_stop', {value: $('#stop').val()});
-				return false; });
+        $('form#emit').submit(function(event) {
+          socket.emit('my_event', {value: $('#emit_value').val()});
+          return false; });
+          
+        $('#buttonVal').click(function(event) {
+          console.log($('#buttonVal').val());
+          socket.emit('click_event', {value: $('#buttonVal').val()});
+          return false; });
+          
+        $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect_request');
+          return false; }); 
+          
+        $('#start').click(function(event) {
+          console.log($('#start').val());
+          socket.emit('click_start', {value: $('#start').val()});
+          return false; });
+          
+        $('#stop').click(function(event) {
+          console.log($('#stop').val());
+          socket.emit('click_stop', {value: $('#stop').val()});
+          return false; });
 		});          
     </script>
 	</head>
@@ -49,14 +127,19 @@
 			<input type="number" min="0" max="5" name="emit_value" id="emit_value" placeholder="0-5V" step ="0.1"value="0">
 			<input type="submit" value="Send">
 		</form>
-		<form id="disconnect" method="POST" action="#">
-			<input type="submit" value="Disconnect">
-		</form> 
+		
 
 		
 		<button id="start" type="button" value="start">Start</button>
 		<button id="stop" type="button" value="stop">Stop</button>
-		
+    
+    <form id="disconnect" method="POST" action="#">
+			<input type="submit" value="Close">
+		</form> 
+    
+		<div id="plotdiv" style="width:600px;height:250px;"></div>
+    <canvas id="canvasID"></canvas>
+    
 		<h2>Receive:</h2>
 		<div id="log"></div>
 	</body>

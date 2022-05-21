@@ -8,14 +8,14 @@ import math
 import serial
 
 ser = serial.Serial("/dev/ttyS0")
-
 ser.baudrate = 9600
-
 async_mode = None
 
 app = Flask(__name__)
+
 btn = ""
 voltage = ""
+
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
