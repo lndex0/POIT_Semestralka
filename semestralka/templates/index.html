@@ -6,6 +6,10 @@
 	    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.min.js"></script>
       <script src="static/libs/plotly-latest.min.js"></script>
        <script src="static/libs/gauge.min.js"></script>
+       
+       <link rel="stylesheet" href="static/jquery-ui.min.css">
+      <script src="static/jquery-3.2.1.min.js"></script>
+      <script src="static/jquery-ui.min.js"></script>
 	    <script type="text/javascript" charset="utf-8">
 		  $(document).ready(function() {
         
@@ -116,19 +120,21 @@
           console.log($('#stop').val());
           socket.emit('click_stop', {value: $('#stop').val()});
           return false; });
-		});          
+		});
+    $( function() {
+        $( "#tabs" ).tabs({
+          event: "mouseover"
+        });
+      } );         
     </script>
 	</head>
 	<body>
-		<h1>Nadpis</h1>
-		
-		<h2>Send:</h2>
+		<h1>Semestralne zadanie</h1>
+    
 		<form id="emit" method="POST" action='#'>
 			<input type="number" min="0" max="5" name="emit_value" id="emit_value" placeholder="0-5V" step ="0.1"value="0">
 			<input type="submit" value="Send">
 		</form>
-		
-
 		
 		<button id="start" type="button" value="start">Start</button>
 		<button id="stop" type="button" value="stop">Stop</button>
@@ -137,10 +143,22 @@
 			<input type="submit" value="Close">
 		</form> 
     
-		<div id="plotdiv" style="width:600px;height:250px;"></div>
-    <canvas id="canvasID"></canvas>
-    
-		<h2>Receive:</h2>
-		<div id="log"></div>
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Zoznam</a></li>
+        <li><a href="#tabs-2">Graf</a></li>
+        <li><a href="#tabs-3">Cifernik</a></li>
+      </ul>
+      <div id="tabs-1">
+        <h2>Receive:</h2>
+        <div id="log"></div>
+      </div>
+      <div id="tabs-2">
+        <div id="plotdiv" style="width:600px;height:250px;"></div>
+      </div>
+      <div id="tabs-3">
+         <canvas id="canvasID"></canvas>
+      </div>
+    </div>
 	</body>
 </html>
