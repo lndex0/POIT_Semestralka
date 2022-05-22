@@ -161,9 +161,19 @@ def write2file(fuj):
 
 @app.route('/read/<string:num>')
 def readmyfile(num):
-    fo = open("static/files/test.txt","r")
+    fo = open("static/files/data.txt","r")
     rows = fo.readlines()
-    return rows[int(num)-1]
+    
+    return rows[num-1]
+
+@socketio.on('file_event', namespace='/test')
+def file_message(message):
+    id_select = message['value']
+    print(id_select)
+    file = readmyfile(int(id_select))
+    print(file)
+    emit('file_response',
+        {'data': file})
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
