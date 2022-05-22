@@ -96,9 +96,40 @@
           console.log(trace);
         var traces = new Array();
         traces.push(trace);
+        console.log(trace);
         Plotly.newPlot($('#plotdiv')[0], traces, layout);
         });
-
+        
+        socket.on('db_response', function(msg) {
+          const obj = JSON.parse(msg.data);
+          var x_print = new Array();
+          var y_print = new Array();
+          var trace;
+          console.log(obj);
+          for(let i in obj){
+            x_print.push(parseFloat(obj[i].x));
+            y_print.push(parseFloat(obj[i].y));
+          }
+          trace = {
+            x: x_print,
+            y: y_print,
+          };
+          layout = {
+          title: 'Data',
+            xaxis: {
+                title: 'x',
+            },
+            yaxis: {
+                title: 'y',
+            }
+          };
+          console.log(trace);
+          var traces = new Array();
+          traces.push(trace);
+          console.log(trace);
+          Plotly.newPlot($('#db_graph')[0], traces, layout);
+        });
+        
         $('form#emit').submit(function(event) {
           socket.emit('my_event', {value: $('#emit_value').val()});
           return false; });
@@ -120,6 +151,10 @@
         $('#stop').click(function(event) {
           console.log($('#stop').val());
           socket.emit('click_stop', {value: $('#stop').val()});
+          return false; });
+          
+        $('form#database_select').submit(function(event) {
+          socket.emit('db_event', {value: $('#data_select').val()});
           return false; });
 		});
     $( function() {
@@ -150,6 +185,7 @@
         <li><a href="#tabs-1">Zoznam</a></li>
         <li><a href="#tabs-2">Graf</a></li>
         <li><a href="#tabs-3">Cifernik</a></li>
+        <li><a href="#tabs-4">DB Select</a></li>
       </ul>
       <div id="tabs-1">
         <h2>Receive:</h2>
@@ -160,6 +196,13 @@
       </div>
       <div id="tabs-3">
          <canvas id="canvasID"></canvas>
+      </div>
+      <div id="tabs-4">
+        <form id="database_select" method="POST" action='#'>
+          <input type="number" min="2" name="data_select" id="data_select" placeholder="Select ID" step ="1" value="1">
+          <input type="submit" value="Send">
+        </form>
+        <div id="db_graph" style="width:600px;height:250px;"></div>
       </div>
     </div>
 	</body>

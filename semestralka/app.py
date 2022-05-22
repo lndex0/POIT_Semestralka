@@ -8,6 +8,7 @@ import MySQLdb
 import configparser as ConfigParser
 import serial
 
+
 ser = serial.Serial("/dev/ttyS0")
 ser.baudrate = 9600
 async_mode = None
@@ -66,17 +67,23 @@ def background_thread(args):
         if btn == 'stop':
             if len(dataList)>0:
                 print(str(dataList))
+                
                 fuj = str(dataList).replace("'", "\"")
                 
                 write2file(fuj)
                 
                 cursor = db.cursor()
                 cursor.execute("SELECT MAX(id) FROM voltage")
+                
                 maxid = cursor.fetchone()
                 cursor.execute("INSERT INTO voltage (id, value) VALUES (%s, %s)", (maxid[0] + 1, fuj))
                 db.commit()
             dataList = []
             dataCounter = 0
+            x = float(voltage)*(255/5)
+            ser.write(bytes(str(x), 'utf-8'))
+            read_ser = ser.readline()
+            time.sleep(0.05)
         else:
             x = float(voltage)*(255/5)
             ser.write(bytes(str(x), 'utf-8'))
@@ -131,16 +138,19 @@ def dbdata(num):
   db = MySQLdb.connect(host=myhost,user=myuser,passwd=mypasswd,db=mydb)
   cursor = db.cursor()
   print(num)
-  cursor.execute("SELECT hodnoty FROM  graph WHERE id=%s", num)
+  cursor.execute("SELECT value FROM  voltage WHERE id=%s", num)
   rv = cursor.fetchone()
   return str(rv[0])
    
 @socketio.on('db_event', namespace='/test')
-def db_message(message):   
+def db_message(message):
+    db = MySQLdb.connect(host=myhost,user=myuser,passwd=mypasswd,db=mydb)
+    cursor = db.cursor()
 #    session['receive_count'] = session.get('receive_count', 0) + 1 
-    session['db_value'] = message['value']    
-#    emit('my_response',
-#         {'data': message['value'], 'count': session['receive_count']})
+    id_select = message['value']
+    data = dbdata(id_select)
+    emit('db_response',
+        {'data': data})
 
 @app.route('/write')
 def write2file(fuj):
