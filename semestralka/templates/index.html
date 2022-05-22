@@ -65,7 +65,9 @@
         
         var x = new Array();
         var y = new Array();
+        var volti = new Array();
         var trace;
+        var trace2;
         var layout;
         
         namespace = '/test';
@@ -80,9 +82,16 @@
         gauge.value = msg.data; 
         x.push(parseFloat(msg.count));
         y.push(parseFloat(msg.data));
+        volti.push(parseFloat(msg.voltage));
         trace = {
             x: x,
             y: y,
+            name: 'Arduino vystup'
+        };
+        trace2 = {
+            x: x,
+            y: volti,
+            name: 'Ziadana hodnota'
         };
         layout = {
           title: 'Data',
@@ -96,6 +105,7 @@
           console.log(trace);
         var traces = new Array();
         traces.push(trace);
+        traces.push(trace2);
         console.log(trace);
         Plotly.newPlot($('#plotdiv')[0], traces, layout);
         });
@@ -104,15 +114,24 @@
           const obj = JSON.parse(msg.data);
           var x_print = new Array();
           var y_print = new Array();
+          var volt = new Array();
           var trace;
+          var trace2;
           console.log(obj);
           for(let i in obj){
             x_print.push(parseFloat(obj[i].x));
             y_print.push(parseFloat(obj[i].y));
+            volt.push(parseFloat(obj[i].voltage));
           }
           trace = {
             x: x_print,
             y: y_print,
+            name: 'Arduino vystup'
+          };
+          trace2 = {
+            x: x_print,
+            y: volt,
+            name: 'Ziadana hodnota'
           };
           layout = {
           title: 'Data',
@@ -126,6 +145,7 @@
           console.log(trace);
           var traces = new Array();
           traces.push(trace);
+          traces.push(trace2);
           console.log(trace);
           Plotly.newPlot($('#db_graph')[0], traces, layout);
         });
@@ -134,15 +154,24 @@
           const obj = JSON.parse(msg.data);
           var x_print = new Array();
           var y_print = new Array();
+          var volt = new Array();
           var trace;
+          var trace2;
           console.log(obj);
           for(let i in obj){
             x_print.push(parseFloat(obj[i].x));
             y_print.push(parseFloat(obj[i].y));
+            volt.push(parseFloat(obj[i].voltage));
           }
           trace = {
             x: x_print,
             y: y_print,
+            name: 'Arduino vystup'
+          };
+          trace2 = {
+            x: x_print,
+            y: volt,
+            name: 'Ziadana hodnota'
           };
           layout = {
           title: 'Data',
@@ -156,6 +185,7 @@
           console.log(trace);
           var traces = new Array();
           traces.push(trace);
+          traces.push(trace2);
           console.log(trace);
           Plotly.newPlot($('#file_graph')[0], traces, layout);
         });

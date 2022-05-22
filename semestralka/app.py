@@ -62,7 +62,7 @@ def background_thread(args):
             
             count += 1
             socketio.emit('my_response',
-                          {'data': read_ser_sent, 'count': count},
+                          {'data': read_ser_sent, 'count': count, 'voltage': voltage},
                           namespace='/test')
         if btn == 'stop':
             if len(dataList)>0:
